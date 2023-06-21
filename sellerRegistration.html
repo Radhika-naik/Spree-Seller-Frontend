@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Seller Registration</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f2f2f2;
+            margin: 0;
+            padding: 0;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+
+        .container {
+            max-width: 400px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #fff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+        }
+
+        label {
+            display: block;
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        input[type="text"],
+        input[type="password"] {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+
+        input[type="submit"] {
+            width: 100%;
+            padding: 10px;
+            background-color: #4CAF50;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        input[type="submit"]:hover {
+            background-color: #45a049;
+        }
+
+        .error-message {
+            color: #ff0000;
+            margin-top: 10px;
+        }
+
+        .success-message {
+            color: #008000;
+            margin-top: 10px;
+        }
+        
+        .existing-seller-link {
+            display: block;
+            text-align: center;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Seller Registration</h1>
+        <form id="registrationForm">
+            <label for="shopName">Shop Name:</label>
+            <input type="text" id="shopName" name="shopName" required><br>
+
+            <label for="shopCategory">Shop Category:</label>
+            <input type="text" id="shopCategory" name="shopCategory" required><br>
+
+            <label for="shopPhoneNumber">Shop Phone Number:</label>
+            <input type="text" id="shopPhoneNumber" name="shopPhoneNumber" required><br>
+
+            <label for="shopEmail">Shop Email:</label>
+            <input type="text" id="shopEmail" name="shopEmail" required><br>
+
+            <label for="shopAddress">Shop Address:</label>
+            <input type="text" id="shopAddress" name="shopAddress" required><br>
+
+            <label for="shopGstNumber">Shop GST Number:</label>
+            <input type="text" id="shopGstNumber" name="shopGstNumber" required><br>
+
+            <label for="sellerPassword">Seller Password:</label>
+            <input type="password" id="sellerPassword" name="sellerPassword" required><br>
+
+            <input type="submit" value="Register">
+            <p id="errorMessage" class="error-message"></p>
+            <p id="successMessage" class="success-message"></p>
+        </form>
+        <a class="existing-seller-link" href="sellerLogin.html">Existing Seller Log In</a>
+    </div>
+
+    <script>
+        // Check if the user is already logged in
+        const isLoggedIn = sessionStorage.getItem('isLoggedIn');
+        if (isLoggedIn) {
+            window.location.href = 'CreateReceipt.html';
+        }
+        const registrationForm = document.getElementById('registrationForm');
+        const errorMessage = document.getElementById('errorMessage');
+        const successMessage = document.getElementById('successMessage');
+
+        registrationForm.addEventListener('submit', (event) => {
+            event.preventDefault();
+
+            const shopName = document.getElementById('shopName').value;
+            const shopCategory = document.getElementById('shopCategory').value;
+            const shopPhoneNumber = document.getElementById('shopPhoneNumber').value;
+            const shopEmail = document.getElementById('shopEmail').value;
+            const shopAddress = document.getElementById('shopAddress').value;
+            const shopGstNumber = document.getElementById('shopGstNumber').value;
+            const sellerPassword = document.getElementById('sellerPassword').value;
+
+            const requestData = {
+                shop_name: shopName,
+                shop_category: shopCategory,
+                shop_phone_number: shopPhoneNumber,
+                shop_email: shopEmail,
+                shop_address: shopAddress,
+                shop_gst_number: shopGstNumber,
+                seller_password: sellerPassword
+            };
+
+            fetch('https://spreebeta.azurewebsites.net/api/sellerregistration', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(requestData)
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.code === 'SUCCESS') {
+                        registrationForm.reset();
+                        successMessage.textContent = data.message;
+                        // Set session storage indicating successful login
+                        sessionStorage.setItem('isLoggedIn', true);
+                        window.location.href = 'CreateReceipt.html';
+                    } else {
+                        errorMessage.textContent = data.message;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    errorMessage.textContent = 'An error occurred. Please try again later.';
+                });
+        });
+    </script>
+</body>
+</html>

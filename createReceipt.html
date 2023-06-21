@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Create Receipt</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f2f2f2;
+            margin: 0;
+            padding: 0;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+
+        .container {
+            max-width: 400px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #fff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+        }
+
+        label {
+            display: block;
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        input[type="text"],
+        input[type="number"],
+        input[type="date"] {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+
+        .item-details {
+            margin-bottom: 10px;
+        }
+
+        .item-details label {
+            display: inline-block;
+            width: 120px;
+            margin-right: 10px;
+        }
+
+        .item-details input {
+            width: 120px;
+        }
+
+        #items-container {
+            margin-bottom: 10px;
+        }
+
+        .add-item-button {
+            background-color: #4CAF50;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            padding: 10px;
+            margin-bottom: 10px;
+            cursor: pointer;
+        }
+
+        .add-item-button:hover {
+            background-color: #45a049;
+        }
+
+        input[type="submit"] {
+            width: 100%;
+            padding: 10px;
+            background-color: #4CAF50;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 10px;
+        }
+
+        input[type="submit"]:hover {
+            background-color: #45a049;
+        }
+
+        .error-message {
+            color: #ff0000;
+            margin-top: 10px;
+        }
+
+        .success-message {
+            color: #008000;
+            margin-top: 10px;
+        }
+
+        .logged-out-button {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background-color: #4CAF50;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            padding: 5px 10px;
+            cursor: pointer;
+        }
+
+        .logged-out-button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <button class="logged-out-button" onclick="logout()">Logged Out</button>
+    <div class="container">
+        <h1>Create Receipt</h1>
+        <form id="receiptForm">
+            <label for="sellerReceiptNo">Seller Receipt No:</label>
+            <input type="text" id="sellerReceiptNo" name="sellerReceiptNo" required><br>
+
+            <label for="sellerPhNo">Seller Phone Number:</label>
+            <input type="text" id="sellerPhNo" name="sellerPhNo" required><br>
+
+            <label for="customerPhNo">Customer Phone Number:</label>
+            <input type="text" id="customerPhNo" name="customerPhNo" required><br>
+
+            <div id="items-container"></div>
+
+            <button type="button" class="add-item-button" onclick="addItem()">Add Item</button>
+
+            <input type="submit" value="Create Receipt">
+            <p id="errorMessage" class="error-message"></p>
+            <p id="successMessage" class="success-message"></p>
+        </form>
+    </div>
+
+    <script>
+        function logout() {
+            // Clear the session storage
+            sessionStorage.removeItem('isLoggedIn');
+            // Redirect to the Login page
+            window.location.href = 'sellerLogin.html';
+        }
+
+        // Check if the user is already logged in
+        const isLoggedIn = sessionStorage.getItem('isLoggedIn');
+        if (!isLoggedIn) {
+            window.location.href = 'sellerLogin.html';
+        }
+
+        let itemCount = 1;
+
+        function addItem() {
+            const itemsContainer = document.getElementById('items-container');
+
+            const itemDetails = document.createElement('div');
+            itemDetails.classList.add('item-details');
+
+            const itemLabel = document.createElement('label');
+            itemLabel.textContent = `Item ${itemCount}:`;
+            itemDetails.appendChild(itemLabel);
+
+            const itemNameInput = document.createElement('input');
+            itemNameInput.type = 'text';
+            itemNameInput.name = `itemName${itemCount}`;
+            itemNameInput.required = true;
+            itemDetails.appendChild(itemNameInput);
+
+            const quantityLabel = document.createElement('label');
+            quantityLabel.textContent = 'Quantity:';
+            itemDetails.appendChild(quantityLabel);
+
+            const quantityInput = document.createElement('input');
+            quantityInput.type = 'number';
+            quantityInput.name = `quantity${itemCount}`;
+            quantityInput.required = true;
+            itemDetails.appendChild(quantityInput);
+
+            const priceLabel = document.createElement('label');
+            priceLabel.textContent = 'Price:';
+            itemDetails.appendChild(priceLabel);
+
+            const priceInput = document.createElement('input');
+            priceInput.type = 'number';
+            priceInput.name = `price${itemCount}`;
+            priceInput.required = true;
+            itemDetails.appendChild(priceInput);
+
+            const dateLabel = document.createElement('label');
+            dateLabel.textContent = 'Date of Purchase:';
+            itemDetails.appendChild(dateLabel);
+
+            const dateInput = document.createElement('input');
+            dateInput.type = 'date';
+            dateInput.name = `date${itemCount}`;
+            dateInput.required = true;
+            itemDetails.appendChild(dateInput);
+
+            itemsContainer.appendChild(itemDetails);
+
+            itemCount++;
+        }
+
+        const receiptForm = document.getElementById('receiptForm');
+        const errorMessage = document.getElementById('errorMessage');
+        const successMessage = document.getElementById('successMessage');
+
+        receiptForm.addEventListener('submit', function (event) {
+            event.preventDefault();
+
+            const sellerReceiptNo = document.getElementById('sellerReceiptNo').value;
+            const sellerPhNo = document.getElementById('sellerPhNo').value;
+            const customerPhNo = document.getElementById('customerPhNo').value;
+
+            const items = [];
+            const itemInputs = document.querySelectorAll('.item-details');
+
+            for (let i = 0; i < itemInputs.length; i++) {
+                const item_name = itemInputs[i].querySelector(`input[name="itemName${i + 1}"]`).value;
+                const quantity = itemInputs[i].querySelector(`input[name="quantity${i + 1}"]`).value;
+                const total_price = itemInputs[i].querySelector(`input[name="price${i + 1}"]`).value;
+                const date_of_purchase = itemInputs[i].querySelector(`input[name="date${i + 1}"]`).value;
+
+                if (item_name && quantity && total_price && date_of_purchase) {
+                    items.push({
+                        item_name,
+                        quantity,
+                        total_price,
+                        date_of_purchase: date_of_purchase
+                    });
+                }
+            }
+
+            if (items.length === 0) {
+                errorMessage.textContent = 'Please provide at least one item.';
+                return;
+            }
+
+            const requestData = {
+                seller_receipt_no: sellerReceiptNo,
+                seller_phno: sellerPhNo,
+                customer_phno: customerPhNo,
+                items
+            };
+            console.log(requestData)
+
+            fetch('https://spreebeta.azurewebsites.net/api/createreceipt', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(requestData)
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.code === 'SUCCESS') {
+                        receiptForm.reset();
+                        successMessage.textContent = data.message;
+                        window.location.href = 'CreateReceipt.html';
+                    } else {
+                        errorMessage.textContent = data.message;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    errorMessage.textContent = 'An error occurred. Please try again later.';
+                });
+        });
+    </script>
+</body>
+</html>
